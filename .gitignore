@@ -1,0 +1,6 @@
+.env
+
+/test_script.bash
+.nvim.lua
+main.lua
+scratch.lua
