@@ -4,10 +4,12 @@ local M = {}
 
 ---@class InputRunner.Config
 ---@field command_var string? Environment variable name to use for the Input-Runner. Defaults to "IR_CMD"
+---@field ui_select function? The `vim.ui.select` function to use instead of the default.
 
 ---@type InputRunner.Config
 local default_config = {
 	command_var = "IR_CMD",
+	ui_select = vim.ui.select,
 }
 
 local merged_config = {}

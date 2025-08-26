@@ -42,7 +42,9 @@ function M.setup()
 		-- 	expanded_ir_vars[k] = vim.fn.expandcmd(v)
 		-- end
 		-- actual item user is selecting is the key (the env. variable name)
-		vim.ui.select(vim.tbl_keys(ir_vars), {
+		local select = config.ui_select or vim.ui.select
+		-- vim.ui.select(vim.tbl_keys(ir_vars), {
+		select(vim.tbl_keys(ir_vars), {
 			prompt = "Select a command to run",
 			format_item = function(item)
 				return ("%s | %s"):format(item, ir_vars[item])
