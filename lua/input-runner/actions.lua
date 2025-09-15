@@ -2,6 +2,9 @@ local M = {}
 local input = require("input-runner.input")
 local config = require("input-runner.config").get_user_config()
 local term = require("input-runner.term")
+local utils = require("input-runner.utils")
+local interactive = require("input-runner.interactive")
+-- NOTE: repl required in IRRepl command
 
 function M.setup()
 	vim.api.nvim_create_user_command("IRSetCmd", function(args)
@@ -99,6 +102,51 @@ function M.setup()
 		end
 		term.ProjectTerm(cmd)
 	end, { desc = "Run a command in the Input-Runner terminal", nargs = "*", complete = "shellcmdline" })
+
+	vim.api.nvim_create_user_command("IRRepl", function(args)
+		local var = config.repl_var or "IR_REPL"
+		local cmd = input.get_env_var(var)
+		if not cmd then
+			cmd = input.prompt_for_cmd("")
+		end
+		-- NOTE: Cmd validation already happens in 'Repl_term'
+		-- if not cmd or cmd == "" then
+		-- 	vim.notify("REPL Aborted - CMD Empty", vim.log.levels.WARN, { title = "Input-Runner"})
+		-- 	return
+		-- end
+		require("input-runner.repl").Repl_term(cmd)
+	end, { desc = "Start REPL with command defined in the IR_REPL env. var, or start a new one." })
+
+	vim.api.nvim_create_user_command("IRInteractive", function(args)
+		local var = config.interactive_var or "IR_INT"
+		local cmd = args.args
+		if not cmd or cmd == "" then
+			---@diagnostic disable-next-line:cast-local-type
+			cmd = input.get_env_var(var)
+			-- Using env. variable, if there
+		end
+		if not cmd or cmd == "" then
+			vim.notify(
+				("No command provided or found in var '$%s'"):format(var),
+				vim.log.levels.ERROR,
+				{ title = "Input-Runner" }
+			)
+			return
+		end
+		local expanded_cmd = vim.fn.expandcmd(cmd)
+		if utils.nil_or_empty(expanded_cmd) then
+			vim.notify(
+				vim.inspect("Expanded Cmd is nil or empty: ", expanded_cmd),
+				vim.log.levels.ERROR,
+				{ title = "Input-Runner" }
+			)
+			return
+		end
+		local buf = vim.api.nvim_get_current_buf()
+		local scratch_ft = vim.bo[buf].filetype or "python"
+		-- require("input-runner.interactive").Interactive_Term(cmd, nil, scratch_ft, true)
+		interactive.Interactive_Term(expanded_cmd, nil, scratch_ft, true)
+	end, { nargs = "*", complete = "shellcmdline", desc = "Run the file interactively." })
 end
 
 return M

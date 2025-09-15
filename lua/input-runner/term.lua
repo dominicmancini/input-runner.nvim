@@ -11,6 +11,7 @@ local calculate_width = function()
 	local columns = vim.api.nvim_get_option_value("columns", {})
 	return math.floor(columns * 0.7)
 end
+
 ---@module 'toggleterm'
 ---@type TermCreateArgs
 local default_term_opts = {
@@ -40,7 +41,6 @@ local default_term_opts = {
 	end,
 	on_close = function(term)
 		-- NOTE: Now, when closing the window -  it will automatically stop the process (send 'SIGTERM' <C-c> first, then 'SIGKILL' if still neede)
-		--
 		local chan = vim.bo[term.bufnr].channel
 		vim.fn.jobstop(chan)
 	end,

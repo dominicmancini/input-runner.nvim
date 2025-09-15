@@ -18,8 +18,12 @@ function M.prepare_and_remember_cmd(raw_cmd)
 	return expanded
 end
 
-local function prompt_for_cmd()
-	local cmd = vim.fn.input({ prompt = "Set new command: ", default = os.getenv(command_var) or "" })
+---Prompt for a command
+---@param default string? Placeholder value for input (defaults to value of '$IR_CMD')
+---@return string cmd The inputted command
+function M.prompt_for_cmd(default)
+	default = default or os.getenv(command_var)
+	local cmd = vim.fn.input({ prompt = "Set new command: ", default = default or "" })
 	return cmd
 end
 
@@ -56,7 +60,7 @@ end
 ---Promt for a command and set it to the
 ---@return string
 function M.input_set_cmd()
-	local cmd = prompt_for_cmd()
+	local cmd = M.prompt_for_cmd()
 	M.set_env_var(cmd)
 	return cmd
 	-- term.projectTerm(cmd)
